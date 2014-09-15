@@ -9,6 +9,8 @@ function vsrc_rand_gen (bit_num, frequency, sampleRate, fName, fileNumber, inver
 % outName       -> voltage source output net name
 % gndName       -> voltage source connection to groundName
 
+% Example of voltage source generation:
+% vsrc_rand_gen (1000, 1e9, 10, 'vsrc_a', 1, 1, 'v1', 'a', '0');
 
 period = 1/frequency;
 

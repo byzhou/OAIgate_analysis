@@ -8,12 +8,12 @@ format longeng;
 start_time=datestr(now,'mm-dd-yyyy HH:MM:SS FFF');
 
 addpath('/home/bobzhou/Desktop/571/research/hspice_toolbox/HspiceToolbox/');
-printf('Hspice tool box has been successfully loaded.\n');
+fprintf('Hspice tool box has been successfully loaded.\n');
 
 data_path   = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/hspice_data/test_data.tr0';
-srcA_path   = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_a_0.dat'
-srcB1_path  = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_b1_0.dat'
-srcB2_path  = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_b2_0.dat'
+srcA_path   = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_a_0.dat';
+srcB1_path  = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_b1_0.dat';
+srcB2_path  = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_b2_0.dat';
 
 x           = loadsig(data_path);
 
@@ -35,11 +35,11 @@ if (fid_vsrcB2 == -1)
     fprintf('ERROR: Cannot open %s to read! Now exiting', srcB2_path);
 end
 
-data_srcA   = fscanf(fid_vsrcA, '%5.9e %s');
-data_srcB1  = fscanf(fid_vsrcB1, '%5.9e %s');
-data_srcB2  = fscanf(fid_vsrcB2, '%5.9e %s');
+data_srcA   = fscanf(fid_vsrcA, '%5.9e %s ', Inf)
+data_srcB1  = fscanf(fid_vsrcB1, '%5.9e %s', bitnum);
+data_srcB2  = fscanf(fid_vsrcB2, '%5.9e %s', bitnum);
 
-time_srcA   = data_srcA(:,1);
+time_srcA   = data_srcA(1) 
 time_srcB   = data_srcB1(:,1);
 time_srcB   = data_srcB2(:,1);
 
@@ -63,20 +63,21 @@ buff_output_b2  = evalsig(x , 'v_b2_in');
 gate_output     = evalsig(x , 'v_output');
 
 %calculate delay
+i               = 0;
 j               = 0;
 infi            = 10000;
 %matching sequency
-while (i < size(time_srcA)) & (i + J < size(time_srcA))
-    if ~(gate_output (i * sampleRate) == 
+while (i < size(time_srcA)) & ((i + j) < size(time_srcA)) 
+    if ~(gate_output (i * sampleRate) == ...
         ~((strcmp (volt_srcB1 (i + j), 'V_hig') | strcmp (volt_srcB2(i + j),'V_hig'))...
-        | strcmp (volt_srcB1 (i +j), 'V_hig')))
-        j++;
+        | strcmp (volt_srcB1 (i + j), 'V_hig')))
+        j = j + 1;
     else 
-        i++;
+        i = i + 1;
     end
 end
 
-if (j > size(time_srcA)/2)
+if (j > size( time_srcA ) / 2)
     printf('Output cannot be evalued');
     delay = infi;
 else
@@ -94,7 +95,7 @@ for i = 2 : size(time_srcA)
         k = 0;
         while (time(k + (i + j - 1) * 10) < time_srcA(i)) ...
             & (gate_output(k + (i + j - 1) * 10) > vdd/2)
-            k++;
+            k = k + 1;
         end
         delay = delay + period * (i + j - 1) + period * k / 10;
     elseif ...
@@ -106,7 +107,7 @@ for i = 2 : size(time_srcA)
         k = 0;
         while (time(k + (i + j - 1) * 10) < time_srcA(i)) ...
             & (gate_output(k + (i + j - 1) * 10) < vdd/2)
-            k++;
+            k = k + 1;
         end
         delay = delay + period * (i + j - 1) + period * k / 10;
     end
