@@ -21,7 +21,7 @@ for j = 1:fileNumber
     curr_time = 0;
     curr_voltage = 'V_low';
     fNameSave = strcat ('../vsrc_files/',fName, '_', int2str(j-1), '.dat');
-    fValue = strcat ('../vsrc_files/','function_check_',fName, '_', int2str(j-1), '.dat');
+    fValue = strcat ('../vsrc_files/','function_check_',fName, '_', int2str(j-1), '.txt');
 
     if (inverse == 1)
         curr_voltage_inv = 'V_hig';
@@ -43,12 +43,14 @@ for j = 1:fileNumber
         if (bit == 1)
             curr_voltage = 'V_hig';
             curr_voltage_inv = 'V_low';
+            curr_bit = 1;
         else
             curr_voltage = 'V_low';
             curr_voltage_inv = 'V_hig';
+            curr_bit = 0;
         end
 
-        fprintf (fid_func, '%5.9e %s\n', curr_time, curr_voltage);
+        fprintf (fid_func, '%d %d\n', curr_time*1e9, curr_bit);
 
         for j = 1:sampleRate
             curr_time = curr_time + 1e-12;
