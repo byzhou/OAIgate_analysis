@@ -4,6 +4,8 @@ function y = EDP ( bitnum , period , sampleRate );
 %sampleRate     -> sample rate
 format longeng;
 
+%uniform buffer delay is not included
+
 %record start time
 start_time=datestr(now,'mm-dd-yyyy HH:MM:SS FFF');
 
@@ -48,7 +50,8 @@ gate_output     = evalsig(x , 'output');
 
 %calculate delay
 i               = 1;
-j               = 1;
+j               = 0;
+k               = 0;
 infi            = 10000;
 %matching sequency
 while (i < size(time_srcA)) & ((i + j) < size(time_srcA)) 
@@ -71,33 +74,30 @@ end
 %calculate the fine resolution
 delay           = 0;
 for i = 2 : size(time_srcA)
-    if (~((strcmp(volt_srcB1(i - 1),'V_hig') | strcmp(volt_srcB2(i - 1),'V_hig'))...
-        | strcmp(volt_srcB1(i - 1),'V_hig')) & ...
-        ((strcmp(volt_srcB1(i),'V_hig') | strcmp(volt_srcB2(i),'V_hig'))...
-        | strcmp(volt_srcB1(i),'V_hig')))
+    previous_result     =  ~((strcmp(volt_srcB1(i - 1),'V_hig') | strcmp(volt_srcB2(i - 1),'V_hig'))...
+                            & strcmp(volt_srcA(i - 1),'V_hig'));
+    current_result      =  ~((strcmp(volt_srcB1(i - 1),'V_hig') | strcmp(volt_srcB2(i - 1),'V_hig'))...
+                            & strcmp(volt_srcA(i - 1),'V_hig'));
+    fprintf('previous_result %d, current_result %d, gate_output %d\n', previous_result, current_result, gate_output(i) * 1e9);
+    if (~current_result & previous_result) ...
         %Previous output is 1 and current output is 0
-        k = 0;
-        while (time(k + (i + j - 1) * 10) < time_srcA(i)) ...
-            & (gate_output(k + (i + j - 1) * 10) > vdd/2)
+        while (time(k + (i + j - 1) * sampleRate) < time_srcA(i)) ...
+            & (gate_output(k + (i + j - 1) * sampleRate) > vdd / 2)
             k = k + 1;
         end
-        delay = delay + period * j + period * k / 10;
-    elseif ...
-        (((strcmp(volt_srcB1(i - 1),'V_hig') | strcmp(volt_srcB2(i - 1),'V_hig'))...
-        | strcmp(volt_srcB1(i - 1),'V_hig')) & ...
-        ~((strcmp(volt_srcB1(i),'V_hig') | strcmp(volt_srcB2(i),'V_hig'))...
-        | strcmp(volt_srcB1(i),'V_hig')))
+        delay = delay + period * j + period * k / sampleRate;
+    elseif (current_result & ~previous_result) ...
         %Previous output is 0 and current output is 1 
-        k = 0;
-        while (time(k + (i + j - 1) * 10) < time_srcA(i)) ...
-            & (gate_output(k + (i + j - 1) * 10) < vdd/2)
+        k = k + 1;
+        while (time(k + (i + j - 1) * sampleRate) < time_srcA(i)) ...
+            & (gate_output(k + (i + j - 1) * sampleRate) < vdd/2)
             k = k + 1;
         end
-        delay = delay + period * j + period * k / 10;
+        delay = delay + period * j + period * k / sampleRate;
     end
 end
 
-fprintf('The average delay is %d.\n', delay * 1e9 / bitnum);
+fprintf('The average delay is %5.12e, and k value equals to %d.\n', delay * 1e9 / bitnum, k);
 %energy consumption
 energy_consump = Energy ( size ( Energy , 1 ) ) * vdd * ( 1e-12 ) / period *( bitnum ) ;
 	
