@@ -12,10 +12,10 @@ start_time=datestr(now,'mm-dd-yyyy HH:MM:SS FFF');
 addpath('/home/bobzhou/Desktop/571/research/hspice_toolbox/HspiceToolbox/');
 fprintf('Hspice tool box has been successfully loaded.\n');
 
-data_path   = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/hspice_data/test_data.tr0';
-srcA_path   = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_a_0.txt';
-srcB1_path  = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_b1_0.txt';
-srcB2_path  = '/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/vsrc_files/function_check_vsrc_b2_0.txt';
+data_path   = '../hspice_data/OAI21_nangate45.tr0';
+srcA_path   = '../vsrc_files/function_check_vsrc_a_0.txt';
+srcB1_path  = '../vsrc_files/function_check_vsrc_b1_0.txt';
+srcB2_path  = '../vsrc_files/function_check_vsrc_b2_0.txt';
 
 x           = loadsig(data_path);
 
@@ -50,54 +50,68 @@ gate_output     = evalsig(x , 'output');
 
 %calculate delay
 i               = 1;
-j               = 0;
+j               = 1;
 k               = 0;
 infi            = 10000;
-%matching sequency
-while (i < size(time_srcA)) & ((i + j) < size(time_srcA)) 
-    if ~(gate_output (i * sampleRate) == ...
-        ~((strcmp (volt_srcB1 (i + j), 'V_hig') | strcmp (volt_srcB2(i + j),'V_hig'))...
-        | strcmp (volt_srcB1 (i + j), 'V_hig')))
-        j = j + 1;
-    else 
-        i = i + 1;
-    end
-end
 
-if (j > size( time_srcA ) / 2)
-    printf('Output cannot be evalued\n');
-    delay = infi;
-else
-    fprintf('Delay has reached %d cycles.\n', j);
-end
+%matching sequency
+%while (i < size(time_srcA)) & ((i + j) < size(time_srcA)) if ~(gate_output (i * sampleRate) == ...
+%        ~((strcmp (volt_srcB1 (i + j), 'V_hig') | strcmp (volt_srcB2(i + j),'V_hig'))...
+%        | strcmp (volt_srcB1 (i + j), 'V_hig')))
+%        j = j + 1;
+%    else 
+%        i = i + 1;
+%    end
+%end
+
+%if (j > size( time_srcA ) / 2)
+%    printf('Output cannot be evalued\n');
+%    delay = infi;
+%else
+%    fprintf('Delay has reached %d cycles.\n', j);
+%end
 
 %calculate the fine resolution
 delay           = 0;
-for i = 2 : size(time_srcA)
-    previous_result     =  ~((strcmp(volt_srcB1(i - 1),'V_hig') | strcmp(volt_srcB2(i - 1),'V_hig'))...
-                            & strcmp(volt_srcA(i - 1),'V_hig'));
-    current_result      =  ~((strcmp(volt_srcB1(i - 1),'V_hig') | strcmp(volt_srcB2(i - 1),'V_hig'))...
-                            & strcmp(volt_srcA(i - 1),'V_hig'));
-    fprintf('previous_result %d, current_result %d, gate_output %d\n', previous_result, current_result, gate_output(i) * 1e9);
-    if (~current_result & previous_result) ...
+previous_result = 0;
+current_result  = 0;
+
+for i = 2 : bitnum 
+
+    previous_result     =  ~(((volt_srcB1(i - 1) == 1) | (volt_srcB2(i - 1) == 1))...
+                            & (volt_srcA(i - 1) == 1));
+    current_result      =  ~(((volt_srcB1(i) == 1) | (volt_srcB2(i) == 1))...
+                            & (volt_srcA(i) == 1));
+
+    fprintf('voltage A %d, voltage B1 %d, voltage B2 %d\t', volt_srcA(i), volt_srcB1(i), volt_srcB2(i));
+    fprintf('previous_result %d, current_result %d, gate_output %d\n', previous_result, current_result, gate_output(i));
+
+
+    if (current_result & ~previous_result) ...
         %Previous output is 1 and current output is 0
-        while (time(k + (i + j - 1) * sampleRate) < time_srcA(i)) ...
-            & (gate_output(k + (i + j - 1) * sampleRate) > vdd / 2)
-            k = k + 1;
+        while (j < size(time)) & ...
+            (time(j) < period * bitnum) & ...
+            (time(j) > i * period) & ...
+            (gate_output(j) > vdd / 2) 
+            j = j + 1;
         end
-        delay = delay + period * j + period * k / sampleRate;
-    elseif (current_result & ~previous_result) ...
+        delay = delay + time(j) - i * period;
+        %fprintf('This indicates one transition has happened.\n');
+    elseif (~current_result & previous_result) ...
         %Previous output is 0 and current output is 1 
-        k = k + 1;
-        while (time(k + (i + j - 1) * sampleRate) < time_srcA(i)) ...
-            & (gate_output(k + (i + j - 1) * sampleRate) < vdd/2)
-            k = k + 1;
+        while (j < size(time)) & ...
+            (time(j) < period * bitnum) & ...
+            (time(j) > i * period) & ...
+            (gate_output(j) < vdd / 2) 
+            j = j + 1;
         end
-        delay = delay + period * j + period * k / sampleRate;
+        delay = delay + time(j) - i * period;
+        %fprintf('This indicates one transition has happened.\n');
     end
+
 end
 
-fprintf('The average delay is %5.12e, and k value equals to %d.\n', delay * 1e9 / bitnum, k);
+fprintf('The average delay is %5.12e, and k value equals to %d.\n', delay , k);
 %energy consumption
 energy_consump = Energy ( size ( Energy , 1 ) ) * vdd * ( 1e-12 ) / period *( bitnum ) ;
 	
