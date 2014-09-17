@@ -6,7 +6,7 @@
 .GLOBAL vdd! _gnet0 vss!
 
 
-.TRAN 100e-12 10e-9 START=0.0
+.TRAN 1e-12 10e-9 START=0.0
 
 .OP
 
@@ -20,6 +20,9 @@
 .PROBE TRAN V(a) V(b1) V(b2) V(a_in) V(b1_in) V(b2_in) V(output) V(Vpower)
 .INCLUDE "/ad/eng/users/b/o/bobzhou/Desktop/571/hw3/tech_files/45nm_HP.pm"
 .INCLUDE "/home/bobzhou/Desktop/571/research/2014_fall/singleGateMeasure/eqzGate/include_files.m"
+.include "../vsrc_files/vsrc_a_0.dat"
+.include "../vsrc_files/vsrc_b1_0.dat"
+.include "../vsrc_files/vsrc_b2_0.dat"
 
 ** Library name: NangateOpenCellLibrary
 ** Cell name: OAI21_X2
