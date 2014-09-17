@@ -1,0 +1,1 @@
+hspice OAI21_nangate45.sp -o ../hspice_data/OAI21_nangate45 > last_run.log 

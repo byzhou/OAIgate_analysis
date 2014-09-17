@@ -52,16 +52,16 @@ for j = 1:fileNumber
 
         fprintf (fid_func, '%d %d\n', curr_time * 1e9, curr_bit);
 
-        curr_time = curr_time + 1e-12;
+        curr_time = curr_time + 1e-15;
 
         for j = 1 : sampleRate
-            curr_time = curr_time + 1e-12;
-            fprintf (fid, '+ %5.5fn %s\n', curr_time * 1e9, curr_voltage);
-            fprintf (fid_inv, '+ %5.5fn %s\n', curr_time * 1e9, curr_voltage_inv);
+            curr_time = curr_time + 1e-15;
+            fprintf (fid, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage);
+            fprintf (fid_inv, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage_inv);
             %fprintf (fid_inv, '+ %5.9e %s\n', curr_time, curr_voltage_inv);
-            curr_time = period * i + (j - 1) * period / sampleRate - 1e-12;
-            fprintf (fid, '+ %5.5fn %s\n', curr_time * 1e9, curr_voltage);
-            fprintf (fid_inv, '+ %5.5fn %s\n', curr_time * 1e9, curr_voltage_inv);
+            curr_time = period * i + (j - 1) * period / sampleRate - 1e-15;
+            fprintf (fid, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage);
+            fprintf (fid_inv, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage_inv);
             %fprintf (fid, '+ %5.9e %s\n', curr_time, curr_voltage);
             %fprintf (fid_inv, '+ %5.9e %s\n', curr_time, curr_voltage_inv);
         end
