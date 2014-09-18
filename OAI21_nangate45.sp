@@ -6,7 +6,6 @@
 .GLOBAL vdd! _gnet0 vss!
 
 
-.TRAN 1e-12 10e-9 START=0.0
 
 .OP
 
