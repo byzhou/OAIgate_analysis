@@ -77,18 +77,18 @@ previous_result = 0;
 current_result  = 0;
 
 
-for i = 2 : bitnum 
+for i = 2 : (bitnum - 1) 
 
     while ((time(j) < (i * period)) & (j < size(time , 1)) & (time(j) < (bitnum  * period)))
         j = j + 1;
     end
 
-    previous_result     =  ~(((volt_srcB1(i - 1) == 1) | (volt_srcB2(i - 1) == 1))...
-                            & (volt_srcA(i - 1) == 1));
-    current_result      =  ~(((volt_srcB1(i) == 1) | (volt_srcB2(i) == 1))...
+    previous_result     =  ~(((volt_srcB1(i) == 1) | (volt_srcB2(i) == 1))...
                             & (volt_srcA(i) == 1));
+    current_result      =  ~(((volt_srcB1(i + 1) == 1) | (volt_srcB2(i + 1) == 1))...
+                            & (volt_srcA(i + 1) == 1));
 
-%    fprintf('voltage A %d, voltage B1 %d, voltage B2 %d\n', volt_srcA(i), volt_srcB1(i), volt_srcB2(i));
+    fprintf('voltage A %d, voltage B1 %d, voltage B2 %d\n', volt_srcA(i), volt_srcB1(i), volt_srcB2(i));
 %    fprintf('previous_result %d, current_result %d, gate_output %d\n', previous_result, current_result, gate_output(i));
 %    fprintf('rule %d\n ', (j < size(time,1)))% , (time(j) < (period * bitnum)) , (gate_output(j) < vdd / 2));
 
@@ -99,6 +99,7 @@ for i = 2 : bitnum
         end
         delay = delay + time(j) - i * period;
         %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
+        fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), time(j) - i * period, i * period, gate_output(j));
 
     elseif (~current_result & previous_result) ...
         %Previous output is 1 and current output is 0 
@@ -107,10 +108,10 @@ for i = 2 : bitnum
         end
         delay = delay + time(j) - i * period;
         %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
+        fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), time(j) - i * period, i * period, gate_output(j));
 
     end
 
-    %fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), time(j) - i * period, i * period, gate_output(j));
     %fprintf('The value of j is %d \n', j);
     %fprintf('Single Delay of one sim is %5.9f. \n', delay * 1e9);
 end
@@ -130,4 +131,5 @@ disp(strcat('End times------------------',end_time));
 disp(strcat('file_path------------------',data_path));
 fprintf(strcat('Delay_avg------------------',int2str(delay / bitnum), '%5.12e \n'), delay / (bitnum));
 disp(strcat('energy consumption---------',num2str(energy_consump)));
+fprintf('EDP------------------------%5.9e\n', (delay / bitnum * energy_consump));
 
