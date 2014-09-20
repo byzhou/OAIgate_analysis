@@ -22,6 +22,7 @@ for j = 1:fileNumber
     curr_voltage = 'V_low';
     fNameSave = strcat ('../vsrc_files/',fName, '_', int2str(j-1), '.dat');
     fN4cds = strcat ('../vsrc_files/',fName, '_', int2str(j-1), '_cadence.dat');
+    %fN4DFE = strcat ('../vsrc_files/', 'vsrc_DFE', '_', int2str(j-1), '_cadence.dat');
     fValue = strcat ('../vsrc_files/','function_check_',fName, '_', int2str(j-1), '.txt');
 
     if (inverse == 1)
@@ -32,6 +33,7 @@ for j = 1:fileNumber
     
     fid         = fopen(fNameSave, 'w');
     fid_cds     = fopen(fN4cds, 'w');
+    %fid_DFE     = fopen(fN4DFE, 'w');
     fid_func    = fopen(fValue, 'w');
 
     if (fid == -1 || fid_inv == -1 || fid_func == -1 || fid_cds == -1)
