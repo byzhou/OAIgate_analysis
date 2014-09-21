@@ -22,14 +22,17 @@ volt_srcA   = data_srcA(:,2);
 volt_srcB1  = data_srcB1(:,2);
 volt_srcB2  = data_srcB2(:,2);
 
-fprintf( fid , '%5.9e %s \n', 1e-12 , 'V_hig');
+%fprintf( fid , '%5.9e %s \n', 1e-12 , 'V_hig');
 
+currTime    = 0;
 for j = 1 : sampleRate
 
     currVolt = 'V_hig';
-    currTime = (j - 1) * period / sampleRate;
-    fprintf( fid , '%5.9e %s\n', currTime , currVolt);
     %fprintf('%5.9e %s\n', currTime , currVolt);
+    currTime = currTime + 1e-15;
+    fprintf( fid , '%5.9e %s\n', currTime , currVolt);
+    currTime = currTime + period / sampleRate - 1e-15;
+    fprintf( fid , '%5.9e %s\n', currTime , currVolt);
 
 end
 
@@ -43,10 +46,12 @@ for i = 2 : bitnum
             currVolt = 'V_low';
         end
 
-        currTime = time_srcA(i) + (j - 1)* period / sampleRate;
+        currTime = currTime + 1e-15;
+        fprintf( fid , '%5.9e %s\n', currTime , currVolt);
+        currTime = currTime + period / sampleRate - 1e-15;
+        fprintf( fid , '%5.9e %s\n', currTime , currVolt);
 
         %fprintf('voltB1 %d, voltB2 %d, voltA %d currVolt %s \n', volt_srcB1(i - 1) , volt_srcB2(i - 1) , volt_srcA(i - 1), currVolt);
-        fprintf( fid , '%5.9e %s\n', currTime , currVolt);
         %fprintf('%5.9e %s\n', time_srcA(i) , currVolt);
     end
 
