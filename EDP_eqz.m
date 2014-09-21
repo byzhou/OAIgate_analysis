@@ -1,9 +1,8 @@
-function y = EDP ( bitnum , period , sampleRate, volt, DFE_str );
+function y = EDP_eqz ( bitnum , period , sampleRate, volt , DFE_str);
 %bitnum         -> number of bits for testing
 %period         -> time period
 %sampleRate     -> sample rate
-%volt           -> working voltage
-%DFE_str        -> DFE transistor width ratio
+%volt           -> volt
 format longeng;
 
 %uniform buffer delay is not included
@@ -14,7 +13,7 @@ start_time=datestr(now,'mm-dd-yyyy HH:MM:SS FFF');
 addpath('/home/bobzhou/Desktop/571/research/hspice_toolbox/HspiceToolbox/');
 fprintf('Hspice tool box has been successfully loaded.\n');
 
-data_path   = '../hspice_data/OAI21_nangate45.tr0';
+data_path   = '../hspice_data/OAI21_eqz_nangate45.tr0';
 srcA_path   = '../vsrc_files/function_check_vsrc_a_0.txt';
 srcB1_path  = '../vsrc_files/function_check_vsrc_b1_0.txt';
 srcB2_path  = '../vsrc_files/function_check_vsrc_b2_0.txt';
@@ -166,7 +165,7 @@ fprintf(strcat('Delay_avg------------------',int2str(delay / bitnum), '%5.12e \n
 disp(strcat('energy consumption---------',num2str(energy_consump)));
 fprintf('EDP------------------------%5.9e\n', EDP);
 
-path = '../EDP_data/OAI21X2.dat';
+path = '../EDP_data/OAI21X2_eqz.dat';
 fid = fopen ( path , 'a' );
 
 if (fid == -1)
