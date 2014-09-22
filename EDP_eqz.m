@@ -98,19 +98,19 @@ for i = 2 : (bitnum - 1)
             k = k + 1;
         end
     elseif  (buff_output_b1(i) == 1) & (buff_output_b1(i + 1) == 0)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) > (vdd / 2))
+        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b1(j) > (vdd / 2))
             k = k + 1;
         end
     elseif  (buff_output_b1(i) == 0) & (buff_output_b1(i + 1) == 1)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) < (vdd / 2))
+        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b1(j) < (vdd / 2))
             k = k + 1;
         end
     elseif  (buff_output_b2(i) == 1) & (buff_output_b2(i + 1) == 0)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) > (vdd / 2))
+        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b2(j) > (vdd / 2))
             k = k + 1;
         end
     elseif  (buff_output_b2(i) == 0) & (buff_output_b2(i + 1) == 1)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) < (vdd / 2))
+        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b2(j) < (vdd / 2))
             k = k + 1;
         end
     end
