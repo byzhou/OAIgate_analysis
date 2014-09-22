@@ -1,8 +1,9 @@
-function y = EDP_eqz ( bitnum , period , sampleRate, volt , DFE_str);
+function y = EDP_eqz ( bitnum , period , sampleRate, volt , DFE_str, FA_ratio);
 %bitnum         -> number of bits for testing
 %period         -> time period
 %sampleRate     -> sample rate
 %volt           -> volt
+%FA_ratio       -> function assurance ratio
 format longeng;
 
 %uniform buffer delay is not included
@@ -174,7 +175,7 @@ else
     fprintf('The file here %s has succussfully opened. \n', path);
 end
 
-fprintf ( fid , 'voltage:%d DFE_strength:%5.5f EDP:%5.9e\n', volt , DFE_str , EDP);
+fprintf ( fid , '%d %5.5f %5.5f %5.9e\n', volt , DFE_str, FA_ratio, EDP);
 
 if (fclose(fid) == 0)
     fprintf ('File %s written successfuly!\n', path);

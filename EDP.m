@@ -1,9 +1,8 @@
-function y = EDP ( bitnum , period , sampleRate, volt, DFE_str );
+function y = EDP ( bitnum , period , sampleRate, volt);
 %bitnum         -> number of bits for testing
 %period         -> time period
 %sampleRate     -> sample rate
 %volt           -> working voltage
-%DFE_str        -> DFE transistor width ratio
 format longeng;
 
 %uniform buffer delay is not included
@@ -175,7 +174,7 @@ else
     fprintf('The file here %s has succussfully opened. \n', path);
 end
 
-fprintf ( fid , 'voltage:%d DFE_strength:%5.5f EDP:%5.9e\n', volt , DFE_str , EDP);
+fprintf ( fid , 'voltage:%d EDP:%5.9e\n', volt , EDP);
 
 if (fclose(fid) == 0)
     fprintf ('File %s written successfuly!\n', path);
