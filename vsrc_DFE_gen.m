@@ -44,8 +44,8 @@ end
 for i = 2 : bitnum
 
 %   if ~((volt_srcB1(i - 1) | volt_srcB2(i - 1)) & volt_srcA(i - 1))
-%   if ((volt_srcB1(i - 1) | volt_srcB2(i - 1)) & volt_srcA(i - 1))
-    if ~((volt_srcB1(i) | volt_srcB2(i)) & volt_srcA(i))
+    if ((volt_srcB1(i - 1) | volt_srcB2(i - 1)) & volt_srcA(i - 1))
+%   if ~((volt_srcB1(i) | volt_srcB2(i)) & volt_srcA(i))
         currVolt = 'V_hig';
     else
         currVolt = 'V_low';
