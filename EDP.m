@@ -7,6 +7,8 @@ format longeng;
 
 %uniform buffer delay is not included
 
+
+fprintf('gen period %5.9e\n', period);
 %record start time
 start_time=datestr(now,'mm-dd-yyyy HH:MM:SS FFF');
 
@@ -34,7 +36,7 @@ volt_srcA   = data_srcA(:,2);
 volt_srcB1  = data_srcB1(:,2);
 volt_srcB2  = data_srcB2(:,2);
 
-vdd             = 1;
+vdd             = volt;
 
 %This is getting the signal info.
 time            = evalsig(x , 'TIME');
@@ -80,6 +82,9 @@ transition      = 0;
 
 for i = 2 : (bitnum - 1) 
 
+    j   = 1;
+    k   = 1;
+
     while ((time(j) < (i * period)) & (j < size(time , 1)) & (time(j) < (bitnum  * period)))
         j = j + 1;
     end
@@ -88,31 +93,35 @@ for i = 2 : (bitnum - 1)
         k = k + 1;
     end
 
-    if (buff_output_a(i) == 1) & (buff_output_a(i + 1) == 0)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) > (vdd / 2))
+%   fprintf('Current time is %5.9e, buff time is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), time(k) , i * period , gate_output(j));
+
+    if (volt_srcA(i) == 1) & (volt_srcA(i + 1) == 0)
+        while (k < size(time , 1)) & (time(k) < period * bitnum) & (buff_output_a(k) > (vdd / 2))
             k = k + 1;
         end
-    elseif  (buff_output_a(i) == 0) & (buff_output_a(i + 1) == 1)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) < (vdd / 2))
+    elseif  (volt_srcA(i) == 0) & (volt_srcA(i + 1) == 1)
+        while (k < size(time , 1)) & (time(k) < period * bitnum) & (buff_output_a(k) < (vdd / 2))
             k = k + 1;
         end
-    elseif  (buff_output_b1(i) == 1) & (buff_output_b1(i + 1) == 0)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b1(j) > (vdd / 2))
+    elseif  (volt_srcB1(i) == 1) & (volt_srcB1(i + 1) == 0)
+        while (k < size(time , 1)) & (time(k) < period * bitnum) & (buff_output_b1(k) > (vdd / 2))
             k = k + 1;
         end
-    elseif  (buff_output_b1(i) == 0) & (buff_output_b1(i + 1) == 1)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b1(j) < (vdd / 2))
+    elseif  (volt_srcB1(i) == 0) & (volt_srcB1(i + 1) == 1)
+        while (k < size(time , 1)) & (time(k) < period * bitnum) & (buff_output_b1(k) < (vdd / 2))
             k = k + 1;
         end
-    elseif  (buff_output_b2(i) == 1) & (buff_output_b2(i + 1) == 0)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b2(j) > (vdd / 2))
+    elseif  (volt_srcB2(i) == 1) & (volt_srcB2(i + 1) == 0)
+        while (k < size(time , 1)) & (time(k) < period * bitnum) & (buff_output_b2(k) > (vdd / 2))
             k = k + 1;
         end
-    elseif  (buff_output_b2(i) == 0) & (buff_output_b2(i + 1) == 1)
-        while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_b2(j) < (vdd / 2))
+    elseif  (volt_srcB2(i) == 0) & (volt_srcB2(i + 1) == 1)
+        while (k < size(time , 1)) & (time(k) < period * bitnum) & (buff_output_b2(k) < (vdd / 2))
             k = k + 1;
         end
     end
+
+%   fprintf('Current time is %5.9e, buff time is %5.9e. And the ref %5.9e. Gate output is %5.9e\n\n', time(j), time(k) , i * period , gate_output(j));
 
     previous_result     =  ~((volt_srcB1(i)  | volt_srcB2(i)) & volt_srcA(i));
     current_result      =  ~((volt_srcB1(i + 1) | volt_srcB2(i + 1)) & volt_srcA(i + 1));
@@ -123,21 +132,25 @@ for i = 2 : (bitnum - 1)
 
     if (current_result & ~previous_result) ...
         %Previous output is 0 and current output is 1
-        while (j < size(time , 1)) & (time(j) < period * bitnum) & (gate_output(j) < (vdd / 2))
+        while ((j < size(time , 1)) & (time(j) < period * bitnum) & (gate_output(j) < (vdd / 2)))
             j = j + 1;
         end
-        delay = delay + time(j) - time(k);
+        if ((j < size(time , 1)) & (time(j) < period * bitnum))
+            delay = delay + time(j) - time(k);
+        end
         %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
-%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
+%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
         transition = transition + 1;
     elseif (~current_result & previous_result) ...
         %Previous output is 1 and current output is 0 
         while (j < size(time , 1)) & (time(j) < period * bitnum) & (gate_output(j) > (vdd / 2)) 
             j = j + 1;
         end
-        delay = delay + time(j) - time(k);
+        if ((j < size(time , 1)) & (time(j) < period * bitnum))
+            delay = delay + time(j) - time(k);
+        end
         %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
-%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
+%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
         transition = transition + 1;
     end
 
@@ -174,7 +187,7 @@ else
     fprintf('The file here %s has succussfully opened. \n', path);
 end
 
-fprintf ( fid , 'voltage:%d EDP:%5.9e\n', volt , EDP);
+fprintf ( fid , '%d %5.9e\n', volt , EDP);
 
 if (fclose(fid) == 0)
     fprintf ('File %s written successfuly!\n', path);

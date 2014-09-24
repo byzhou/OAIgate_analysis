@@ -4,8 +4,10 @@ function test_gen( bitnum, volt, DFE_ratio, FA_ratio)
 %DFE_ratio          -> DFE pulling strength
 %FA_ratio           -> functional assurance sizing
 
-gen_freq    = 1e9;
+
+gen_freq    = volt * 1e9;
 gen_period  = 1 / gen_freq;
+%fprintf('gen period %5.9e\n', gen_period);
 
 fprintf('Start random generation.....\n');
 path = '../eqzGate/parameter.m';
@@ -18,7 +20,7 @@ else
 end
 
 fprintf ( fid , '.PARAM vdd=%5.5f v_low=0 buff_vdd=vdd v_hig=vdd\n', volt);
-fprintf ( fid , '.TRAN 100e-12 %de-9 START=0.0\n', bitnum);
+fprintf ( fid , '.TRAN 100e-12 %de-9 START=0.0\n', bitnum * gen_period);
 
 if (fclose(fid) == 0)
     fprintf ('File %s written successfuly!\n', path);
@@ -37,7 +39,7 @@ else
 end
 
 fprintf ( fid , '.PARAM dfe_n_oaix2=%dn dfe_p_oaix2=%dn ratio=%5.3f cap=0.663f vdd=%5.3f buff_vdd=vdd v_hig=vdd v_low=0\n', DFE_ratio * 630 , DFE_ratio * 415 , FA_ratio, volt);
-fprintf ( fid , '.TRAN 1e-12 %de-9 START=0.0\n', bitnum);
+fprintf ( fid , '.TRAN 1e-12 %de-9 START=0.0\n', bitnum * gen_period);
 %fprintf ( '.TRAN 1e-12 %de-9 START=0.0\n', bitnum);
  
 if (fclose(fid) == 0)
@@ -64,11 +66,11 @@ fprintf('Sourcing the hspice simulation files.....\n');
 
 fprintf('Begin to simulate hspice.....\n');
 !hspice OAI21_nangate45.sp -o ../hspice_data/OAI21_nangate45 > last_run.log 
-%!hspice OAI21_eqz_nangate45.sp -o ../hspice_data/OAI21_eqz_nangate45 > last_run.log 
+!hspice OAI21_eqz_nangate45.sp -o ../hspice_data/OAI21_eqz_nangate45 > last_run.log 
 
 fprintf('Begin to have EDP analysis.....\n');
 %fprintf('Begin to remove previous EDP analysis.....\n');
 %!rm ../EDP_data/*
 EDP(bitnum, gen_period, 10, volt);
-%EDP_eqz(bitnum, gen_period, 10, volt , DFE_ratio, FA_ratio);
+EDP_eqz(bitnum, gen_period, 10, volt , DFE_ratio, FA_ratio);
 

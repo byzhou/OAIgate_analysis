@@ -43,18 +43,22 @@ end
 
 for i = 2 : bitnum
 
+%   if ~((volt_srcB1(i - 1) | volt_srcB2(i - 1)) & volt_srcA(i - 1))
+%   if ((volt_srcB1(i - 1) | volt_srcB2(i - 1)) & volt_srcA(i - 1))
+    if ~((volt_srcB1(i) | volt_srcB2(i)) & volt_srcA(i))
+        currVolt = 'V_hig';
+    else
+        currVolt = 'V_low';
+    end
+
     for j = 1 : sampleRate
 
-        if ((volt_srcB1(i - 1) | volt_srcB2(i - 1)) & volt_srcA(i - 1))
-            currVolt = 'V_hig';
-        else
-            currVolt = 'V_low';
-        end
-
         currTime = currTime + 1e-15;
-        fprintf( fid , '%5.9e %s\n', currTime , currVolt);
+        fprintf( fid_cds , '%5.9e %s\n', currTime , currVolt);
+        fprintf( fid , '+ %5.9e %s\n', currTime , currVolt);
         currTime = currTime + period / sampleRate - 1e-15;
-        fprintf( fid , '%5.9e %s\n', currTime , currVolt);
+        fprintf( fid_cds , '%5.9e %s\n', currTime , currVolt);
+        fprintf( fid , '+ %5.9e %s\n', currTime , currVolt);
 
         %fprintf('voltB1 %d, voltB2 %d, voltA %d currVolt %s \n', volt_srcB1(i - 1) , volt_srcB2(i - 1) , volt_srcA(i - 1), currVolt);
         %fprintf('%5.9e %s\n', time_srcA(i) , currVolt);
