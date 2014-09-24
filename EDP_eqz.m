@@ -115,7 +115,7 @@ for i = 2 : (bitnum - 1)
         end
     end
 
-%   fprintf('Current time is %5.9e, buff time is %5.9e. And the ref %5.9e. Gate output is %5.9e\n\n', time(j), time(k) , i * period , gate_output(j));
+    fprintf('Current time is %5.9e, buff time is %5.9e. And the ref %5.9e. Gate output is %5.9e\n\n', time(j), time(k) , i * period , gate_output(j));
     previous_result     =  ~((volt_srcB1(i)  | volt_srcB2(i)) & volt_srcA(i));
     current_result      =  ~((volt_srcB1(i + 1) | volt_srcB2(i + 1)) & volt_srcA(i + 1));
 
@@ -130,10 +130,10 @@ for i = 2 : (bitnum - 1)
         end
         if ((j < size(time , 1)) & (time(j) < period * bitnum))
             delay = delay + time(j) - time(k);
+            fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
+%           fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
         end
         %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
-%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
-%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
         transition = transition + 1;
     elseif (~current_result & previous_result) ...
         %Previous output is 1 and current output is 0 
@@ -142,10 +142,10 @@ for i = 2 : (bitnum - 1)
         end
         if ((j < size(time , 1)) & (time(j) < period * bitnum))
             delay = delay + time(j) - time(k);
+            fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
         end
         %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
 %       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
-%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
         transition = transition + 1;
     end
 

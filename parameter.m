@@ -1,2 +1,2 @@
-.PARAM vdd=1.00000 v_low=0 buff_vdd=vdd v_hig=vdd
-.TRAN 100e-12 1.000000e-07e-9 START=0.0
+.PARAM vdd=0.40000 v_low=0 buff_vdd=vdd v_hig=vdd
+.TRAN 100e-12 2.500000e-08e-9 START=0.0
