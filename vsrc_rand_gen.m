@@ -20,9 +20,11 @@ RandStream.setGlobalStream(RandStream('mt19937ar', 'seed', sum(100*clock)));
 for j = 1:fileNumber
     curr_time = 0;
     curr_voltage = 'V_low';
+    %file for hspice 
     fNameSave = strcat ('../vsrc_files/',fName, '_', int2str(j-1), '.dat');
+    %file for cadence to read
     fN4cds = strcat ('../vsrc_files/',fName, '_', int2str(j-1), '_cadence.dat');
-    %fN4DFE = strcat ('../vsrc_files/', 'vsrc_DFE', '_', int2str(j-1), '_cadence.dat');
+    %file for matlab code to read
     fValue = strcat ('../vsrc_files/','function_check_',fName, '_', int2str(j-1), '.txt');
 
     if (inverse == 1)
@@ -33,7 +35,6 @@ for j = 1:fileNumber
     
     fid         = fopen(fNameSave, 'w');
     fid_cds     = fopen(fN4cds, 'w');
-    %fid_DFE     = fopen(fN4DFE, 'w');
     fid_func    = fopen(fValue, 'w');
 
     if (fid == -1 || fid_inv == -1 || fid_func == -1 || fid_cds == -1)
@@ -56,22 +57,17 @@ for j = 1:fileNumber
 
         fprintf (fid_func, '%d %d\n', curr_time * 1e9, curr_bit);
 
-        %curr_time = curr_time + 1e-15;
-
         for j = 1 : sampleRate
 
             curr_time = curr_time + 1e-15;
             fprintf (fid, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage);
             fprintf (fid_cds, '%5.6fn %s\n', curr_time * 1e9, curr_voltage);
             fprintf (fid_inv, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage_inv);
-            %fprintf (fid_inv, '+ %5.9e %s\n', curr_time, curr_voltage_inv);
 
             curr_time =  curr_time + period / sampleRate - 1e-15;
             fprintf (fid, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage);
             fprintf (fid_cds, '%5.6fn %s\n', curr_time * 1e9, curr_voltage);
             fprintf (fid_inv, '+ %5.6fn %s\n', curr_time * 1e9, curr_voltage_inv);
-            %fprintf (fid, '+ %5.9e %s\n', curr_time, curr_voltage);
-            %fprintf (fid_inv, '+ %5.9e %s\n', curr_time, curr_voltage_inv);
         end
     end
 

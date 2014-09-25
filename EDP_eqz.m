@@ -6,8 +6,6 @@ function y = EDP_eqz ( bitnum , period , sampleRate, volt , DFE_str, FA_ratio);
 %FA_ratio       -> function assurance ratio
 format longeng;
 
-%uniform buffer delay is not included
-
 %record start time
 start_time=datestr(now,'mm-dd-yyyy HH:MM:SS FFF');
 
@@ -50,30 +48,12 @@ buff_output_b2  = evalsig(x , 'b2_in');
 
 gate_output     = evalsig(x , 'output');
 
-%calculate delay
+%Delay calculation initialization
 i               = 1;
 j               = 1;
 k               = 1;
 infi            = 10000;
 
-%matching sequency
-%while (i < size(time_srcA)) & ((i + j) < size(time_srcA)) if ~(gate_output (i * sampleRate) == ...
-%        ~((strcmp (volt_srcB1 (i + j), 'V_hig') | strcmp (volt_srcB2(i + j),'V_hig'))...
-%        | strcmp (volt_srcB1 (i + j), 'V_hig')))
-%        j = j + 1;
-%    else 
-%        i = i + 1;
-%    end
-%end
-
-%if (j > size( time_srcA ) / 2)
-%    printf('Output cannot be evalued\n');
-%    delay = infi;
-%else
-%    fprintf('Delay has reached %d cycles.\n', j);
-%end
-
-%calculate the fine resolution
 delay           = 0;
 previous_result = 0;
 current_result  = 0;
@@ -81,6 +61,7 @@ transition      = 0;
 
 for i = 2 : (bitnum - 1) 
 
+    %move the buffer time pointer and the output time pointer to the start point of current signal.
     while ((time(j) < (i * period)) & (j < size(time , 1)) & (time(j) < (bitnum  * period)))
         j = j + 1;
     end
@@ -88,7 +69,8 @@ for i = 2 : (bitnum - 1)
     while ((time(k) < (i * period)) & (k < size(time , 1)) & (time(k) < (bitnum  * period)))
         k = k + 1;
     end
-
+    
+    %Detect the signal start time point at the buffer output
     if (buff_output_a(i) == 1) & (buff_output_a(i + 1) == 0)
         while (k < size(time , 1)) & (time(j) < period * bitnum) & (buff_output_a(j) > (vdd / 2))
             k = k + 1;
@@ -115,42 +97,41 @@ for i = 2 : (bitnum - 1)
         end
     end
 
-    fprintf('Current time is %5.9e, buff time is %5.9e. And the ref %5.9e. Gate output is %5.9e\n\n', time(j), time(k) , i * period , gate_output(j));
+    %Calculate the delay by first generating a pseudo-signal. Compare the time point of the actual signal 
+    %with this signal
     previous_result     =  ~((volt_srcB1(i)  | volt_srcB2(i)) & volt_srcA(i));
     current_result      =  ~((volt_srcB1(i + 1) | volt_srcB2(i + 1)) & volt_srcA(i + 1));
 
-%    fprintf('voltage A %d %d, voltage B1 %d, voltage B2 %d\n', i,  volt_srcA(i), volt_srcB1(i), volt_srcB2(i));
-%    fprintf('previous_result %d, current_result %d, gate_output %d\n', previous_result, current_result, gate_output(i));
-%    fprintf('rule %d\n ', (j < size(time,1)))% , (time(j) < (period * bitnum)) , (gate_output(j) < vdd / 2));
-
     if (current_result & ~previous_result) ...
-        %Previous output is 0 and current output is 1
+
+        %Previous output is 0 and current output is 1.
         while ((j < size(time , 1)) & (time(j) < period * bitnum) & (gate_output(j) < (vdd / 2)))
             j = j + 1;
         end
+        
+        %The output detector will goes to infinity after it mets the last transition. To prevent that becomes
+        %a part of the delay, the delay calculation should exclude that.
         if ((j < size(time , 1)) & (time(j) < period * bitnum))
             delay = delay + time(j) - time(k);
-            fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
-%           fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
         end
-        %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
+
+        %Calculate the transition times of one single experiment.
         transition = transition + 1;
+
     elseif (~current_result & previous_result) ...
-        %Previous output is 1 and current output is 0 
+
+        %Previous output is 1 and current output is 0.
+        %Similar approach as the transition from 0 to 1.
         while (j < size(time , 1)) & (time(j) < period * bitnum) & (gate_output(j) > (vdd / 2)) 
             j = j + 1;
         end
+
         if ((j < size(time , 1)) & (time(j) < period * bitnum))
             delay = delay + time(j) - time(k);
-            fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), time(k), gate_output(j));
         end
-        %fprintf('time j %5.9e %5.9e \n', time(j), period * i);
-%       fprintf('Current time is %5.9e, The delay is %5.9e. And the ref %5.9e. Gate output is %5.9e\n', time(j), - time(k) + time(j), i * period, gate_output(j));
+
         transition = transition + 1;
     end
-
-    %fprintf('The value of j is %d \n', j);
-    %fprintf('Single Delay of one sim is %5.9f. \n', delay * 1e9);
 end
 
 fprintf('The average delay is %5.12e. \n', delay / transition);
@@ -173,6 +154,7 @@ fprintf(strcat('Delay_avg------------------',int2str(delay / bitnum), '%5.12e \n
 disp(strcat('energy consumption---------',num2str(energy_consump)));
 fprintf('EDP------------------------%5.9e\n', EDP);
 
+%write EDP results to the file
 path = '../EDP_data/OAI21X2_eqz.dat';
 fid = fopen ( path , 'a' );
 

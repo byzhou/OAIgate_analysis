@@ -5,7 +5,7 @@
 ** Design view name: schematic
 .GLOBAL vdd! _gnet0 vss!
 
-
+**The data about the parameter and running times are in the parameter file.
 
 .OP
 

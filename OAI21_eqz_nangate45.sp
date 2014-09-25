@@ -6,6 +6,7 @@
 .GLOBAL _gnet0 vdd! vss!
 
 
+**The data about the parameter and running times are in the parameter file.
 
 .OP
 

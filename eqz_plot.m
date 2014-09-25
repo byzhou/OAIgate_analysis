@@ -1,4 +1,6 @@
 function eqz_plot();
+%This function is very specific contour plot drawing. It only draws with specific
+%amount of data points
 
 EDP_eqz_path    = '../EDP_data/OAI21X2_eqz.dat';
 
@@ -11,20 +13,21 @@ FA_width_ratio  = data_eqz(:,3);
 EDP             = data_eqz(:,4);
 
 %plot( DFE_width_ratio( 1 : 10) , EDP( 1 : 10 ));
+%Read in the data
 for i = 1 : 10
     for j = 1 : 10
-        EDP_data (i , j)    = EDP ( ( i - 1 ) * 10 + j);
+        EDP_data (i , j)    = (EDP ( ( i - 1 ) * 10 + j));
     end
 end
 
 DFE             = 1 : 10;
-FA              = 0.1 : 0.1 : 1;
+FA              = 0.2 : 0.1 : 1.1;
 
-contourf ( DFE , FA , EDP_data );
+contourf (  FA,  DFE, EDP_data , 20, '-.');
 title({'Contour of OAI Gate working under 400mV',...
-         'Original Desgin EDP 1.509259606e-07 Optimized New Design EDP 1.308663214e-07'},...
+         'Original Desgin EDP 3.562305649e-11  Optimized New Design EDP 9.313121542e-11'},...
          'FontSize', 15, 'fontWeight', 'bold');
-xlabel ('DFE width ratio to 630 / 415 inverter');
-ylabel ('FA width ratio to 630 / 415 inverter');
+xlabel ({'FA width ratio to 630 / 415 inverter'},'FontSize', 15, 'fontWeight', 'bold');
+ylabel ({'DFE width ratio to 630 / 415 inverter'},'FontSize', 15, 'fontWeight', 'bold');
 whitebg('white');
 

@@ -1,1 +1,0 @@
-Using: /usr/bin/time -p /ad/eng/support/software/linux/all/all/synopsys/hspice/hspice/linux/hspice  OAI21_eqz_nangate45.sp -o ../hspice_data/OAI21_eqz_nangate45
