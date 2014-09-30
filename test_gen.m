@@ -16,6 +16,8 @@ function test_gen( bitnum, volt, DFE_ratio, FA_ratio)
 %BE AWARE THAT RANDOM GENERATION PERIOD MUST BE LARGER THAN GATE DELAY
 %PREVIOUS LINE IS VERY IMPOOOOOOOORTANT!!!  PREVIOUS LINE IS VERY IMPOOOOOOOORTANT!!!
 
+%Process bar starts
+h           = waitbar( 0 , 'The program has been fired up...');
 %This defines the random generation speed.
 gen_freq    = volt * 1e9;
 gen_period  = 1 / gen_freq;
@@ -30,6 +32,10 @@ if (fid == -1)
 else
     fprintf('The file here %s has been succussfully opened. \n', path);
 end
+
+
+%Process bar moves on
+waitbar(0.1);
 
 fprintf ( fid , '.PARAM vdd=%5.5f v_low=0 buff_vdd=vdd v_hig=vdd\n', volt);
 fprintf ( fid , '.TRAN 100e-12 %de-9 START=0.0\n', bitnum * gen_period);
@@ -61,6 +67,8 @@ else
     fprintf ('ERROR: Cannot close file %s! Now exiting\n', path);
 end
 
+%Process bar moves on
+waitbar(0.3);
 %Generate the input the entire testing system
  vsrc_rand_gen (bitnum, gen_freq, 10, 'vsrc_a', 1, 1, 'v1', 'a', '0');
  vsrc_rand_gen (bitnum, gen_freq, 10, 'vsrc_b1', 1, 1, 'v2', 'b1', '0');
@@ -86,7 +94,9 @@ fprintf('Begin to have EDP analysis.....\n');
 %fprintf('Begin to remove previous EDP analysis.....\n');
 %!rm ../EDP_data/*
 
+%Process bar moves on
+waitbar(0.9);
 %Finally we need to calculate data.
 EDP(bitnum, gen_period, 10, volt);
 EDP_eqz(bitnum, gen_period, 10, volt , DFE_ratio, FA_ratio);
-
+close(h)
